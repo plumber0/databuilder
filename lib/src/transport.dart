@@ -56,7 +56,10 @@ Future post({
   data,
   headers,
 }) async {
-  final url = Uri.parse('$endpoint/$path');
+  var url = Uri.https(
+    endpoint = endpoint,
+    path = path,
+  );
   var response = await http.post(url, headers: headers, body: data);
   return jsonDecode(utf8.decode(response.bodyBytes));
 }

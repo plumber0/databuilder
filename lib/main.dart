@@ -1,9 +1,21 @@
+import 'package:flutter/material.dart';
+
 import 'src/auth.dart';
 import 'src/transport.dart' as tr;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const String endpoint = 'api.deepnatural.ai';
 const String credentialPath = '/Users/yoo/.deepnatural.ai/credentials.json';
+
+Future getAuthToken({email, password}) async {
+  final response = await tr.post(
+      endpoint: endpoint,
+      path: 'auth/login/',
+      headers: null,
+      data: {'email': email, 'password': password});
+  return response;
+}
 
 Future getProject({uid}) async {
   final header = getAuthHeaders(credentialPath);
@@ -55,5 +67,18 @@ Stream exportTaskrun(String projectUid) async* {
 }
 
 void main() async {
-  exportTaskrun('wWKpnpRJ2Rg').forEach(print);
+  WidgetsFlutterBinding.ensureInitialized();
+  // exportTaskrun('wWKpnpRJ2Rg').forEach(print);
+  final storage = FlutterSecureStorage();
+
+  final response = await getAuthToken();
+
+  await storage.write(key: 'key', value: response['key']);
+
+  String? value = await storage.read(key: 'key');
+  print(value);
+  await storage.delete(key: 'key');
+
+  Map<String, String> allValues = await storage.readAll();
+  print(allValues);
 }
